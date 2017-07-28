@@ -2,14 +2,14 @@
 
 Some working docker samples and instructions to "dockerize" Terracotta Enterprise 4.x and related components.
 What we'll cover with this guide:
- - Create and run docker images for Terracotta EE Server component -- [BigMemory Max](http://terracotta.org/products/bigmemorymax)
- - Create and run docker images for Terracotta EE Monitoring component -- [Terreacotta Mamnagement Console (TMC)](http://terracotta.org/documentation/4.0/tms/tms)
+ - Create and run docker images for Terracotta EE Server component (a.k.a [BigMemory Max/Terracotta-EE](http://terracotta.org/products/bigmemorymax))
+ - Create and run docker images for Terracotta EE Monitoring component (a.k.a [Terracotta Mamagement Console (TMC)](http://terracotta.org/documentation/4.0/tms/tms))
  - Create and run docker images for cache clients connecting to the Terracotta
  - Tie everything together with docker-compose
 
-Important: Terracotta Enterprise software and license are required for this guide (we will be using them to create the docker images)
+**Important**: Terracotta Enterprise software and license are required for this guide (we will be using them to create the docker images)
 
-For Terracotta open-source versions, please refer to: 
+**For Terracotta open-source versions, please refer to:**
  - GitHub: [Terracotta-OSS/docker on GitHub](https://github.com/Terracotta-OSS/docker)
  - Docker Hub: [Terracotta on Docker Hub](https://hub.docker.com/u/terracotta/)
 

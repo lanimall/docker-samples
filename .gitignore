@@ -1,0 +1,45 @@
+.DS_Store
+
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+#*.so
+bin/
+target/
+out/
+build/
+
+##############
+# eclipse #
+##############
+.project
+.metadata
+.classpath
+.settings/
+bin/**
+*.tmp
+*.bak
+*.swp
+
+#############
+# intelliJ #
+##############
+.idea
+*.ipr
+*.iml
+.settings
+
+#log giles
+*.log
+
+#local config files
+build.properties
+config/newrelic.properties
+config/com.newrelic.plugins.terracotta.json
+config/logging.properties
+config/plugin.properties
+~*

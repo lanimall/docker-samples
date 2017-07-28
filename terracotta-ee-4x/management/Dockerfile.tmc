@@ -1,0 +1,46 @@
+# Using the latest OpenJDK 8 update (see https://hub.docker.com/_/openjdk/ for more details)
+FROM openjdk:8-jdk-alpine
+
+MAINTAINER fabien.sanglier@softwareag.com
+
+RUN apk --update add openssl ca-certificates bash
+
+# 
+# IMPORTANT!!!!: Terracotta EE requires license file. To make it easy, we'll assume that the terracotta license file is added at the root of the mounted volume
+#
+ARG TERRACOTTA_LICENSE_KEY=terracotta-license.key
+
+RUN mkdir /terracotta
+
+# Copy the minimum contents from the installation necessary to run a fully-functional tmc node
+ADD ./tools/management-console /terracotta/tools/management-console
+
+# copy modified jetty.xml and log4j to log to stdout instead of file 
+ADD ./DockerConfigs.tmc/jetty.xml /terracotta/tools/management-console/etc
+ADD ./DockerConfigs.tmc/log4j.properties /terracotta
+
+# Add terracotta license key
+ADD $TERRACOTTA_LICENSE_KEY /terracotta/tools/
+
+# Set JAVA HOME
+ENV JAVA_HOME /usr/lib/jvm/java-1.8-openjdk/
+
+# adding the user terracotta and making its home the /terracotta folder, to not run the server as root
+RUN addgroup -S terracotta && adduser -h /terracotta -s /bin/bash -G terracotta -S -D terracotta
+RUN chown -R terracotta:terracotta /terracotta
+USER terracotta
+
+# all below commands will now be relative to this path
+WORKDIR /terracotta/tools/management-console/
+
+# Adding license key in the JAVA OPTS
+ENV JAVA_OPTS="-Dcom.tc.productkey.path=/terracotta/tools/terracotta-license.key"
+
+# the tmc listens on port 9889 for browsers connections
+EXPOSE 9889
+
+# using a custom log4j.properties configuration file to redirect all logs to STDOUT
+ENV JAVA_OPTS="-Dlog4j.configuration=/terracotta/log4j.properties"
+
+# using the startup script as the entrypoint
+ENTRYPOINT ["bin/start-tmc.sh"]

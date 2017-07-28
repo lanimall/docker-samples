@@ -1,0 +1,63 @@
+# Using the latest OpenJDK 8 update (see https://hub.docker.com/_/openjdk/ for more details)
+FROM openjdk:8-jdk-alpine
+
+MAINTAINER fabien.sanglier@softwareag.com
+
+RUN apk --update add openssl ca-certificates bash
+
+# 
+# IMPORTANT!!!!: Terracotta EE requires license file. To make it easy, we'll assume that the terracotta license file is added at the root of the mounted volume
+#
+ARG TERRACOTTA_LICENSE_KEY=terracotta-license.key
+
+RUN mkdir /terracotta
+
+#
+# IMPORTANT!!!!: to work as-is, this docker script must be copied at the root path of the Terracotta/BigMemory kit
+# Copy the minimum contents from the installation necessary to run a fully-functional server node
+ADD ./server/bin /terracotta/server/bin
+ADD ./server/lib /terracotta/server/lib
+
+# Copy custom configs templates and logging
+ADD ./DockerConfigs.tc/tc-config-single-node.xml /terracotta/server/configs/
+ADD ./DockerConfigs.tc/tc-config-active-passive.xml /terracotta/server/configs/
+ADD ./DockerConfigs.tc/tc.custom.log4j.properties /terracotta/.tc.custom.log4j.properties
+
+# Add terracotta license key
+ADD $TERRACOTTA_LICENSE_KEY /terracotta/server/
+
+
+# Set JAVA HOME
+ENV JAVA_HOME /usr/lib/jvm/java-1.8-openjdk/
+
+# adding the user terracotta and making its home the /terracotta folder, to not run the server as root
+RUN addgroup -S terracotta && adduser -h /terracotta -s /bin/bash -G terracotta -S -D terracotta
+RUN chown -R terracotta:terracotta /terracotta
+USER terracotta
+
+# all below commands will now be relative to this path
+WORKDIR /terracotta/server
+
+# the tsa port (used by the clients to connect to the cluster)
+EXPOSE 9510
+# the group port (used to sync the passives with the active)
+EXPOSE 9530
+# the management port
+EXPOSE 9540
+
+# this volumes has 2 goals : provide some configuration files (tc-config.xml) and use the host filesystem to persist the data and logs  (avoiding the cost of the UFS)
+VOLUME /terracotta_data/
+
+# Adding license key in the JAVA OPTS
+ENV JAVA_OPTS="-Dcom.tc.productkey.path=/terracotta/server/terracotta-license.key"
+
+# default values for offheap, that you can override when starting your container with docker run -e OFFHEAP_MAX_SIZE=512g for example
+ENV DATASTORAGE_MAX_SIZE "2g"
+ENV OFFHEAP_ENABLED "true"
+ENV OFFHEAP_MAX_SIZE "2g"
+ENV HYBRID_ENABLED ""
+ENV FRS_ENABLED "true"
+
+# before starting the terracotta server, we update the tc-config.xml configuration file
+ENTRYPOINT sed -i -r 's/%OFFHEAP_ENABLED%/'$OFFHEAP_ENABLED'/; s/%DATASTORAGE_MAX_SIZE%/'$DATASTORAGE_MAX_SIZE'/; s/%OFFHEAP_MAX_SIZE%/'$OFFHEAP_MAX_SIZE'/; s/%HYBRID_ENABLED%/'$HYBRID_ENABLED'/; s/%FRS_ENABLED%/'$FRS_ENABLED'/; s/%TC_SERVER1%/'$TC_SERVER1'/g; s/%TC_SERVER2%/'$TC_SERVER2'/g' configs/tc-config*.xml \
+ && if [ \( -n $TC_SERVER1 \) -o  \( -n $TC_SERVER2 \) ]; then bin/start-tc-server.sh -f configs/tc-config-active-passive.xml -n $HOSTNAME; else bin/start-tc-server.sh -f configs/tc-config-single-node.xml; fi \

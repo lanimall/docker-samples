@@ -1,0 +1,43 @@
+version: '3'
+services:
+  tmc:
+    image: wm_912/terracotta_tmc:4.3.3.1.10
+    ports:
+      - "9889:9889"
+    networks:
+      - myTSANet
+    links:
+      - tsa1
+      - tsa2
+  tsa1:
+    image: wm_912/terracotta_server:4.3.3.1.10
+    hostname: tsa1
+    networks:
+      myTSANet:
+        aliases:
+          - tsa1
+    ports:
+      - "9510:9510"
+      - "9530:9530"
+    environment:
+      - TC_SERVER1=tsa1
+      - TC_SERVER2=tsa2
+    volumes:
+      - $PWD/../server/terracotta_data1/:/terracotta_data
+  tsa2:
+    image: wm_912/terracotta_server:4.3.3.1.10
+    hostname: tsa2
+    networks:
+      myTSANet:
+        aliases:
+          - tsa2
+    ports:
+      - "9610:9510"
+      - "9630:9530"
+    environment:
+      - TC_SERVER1=tsa1
+      - TC_SERVER2=tsa2
+    volumes:
+      - $PWD/../server/terracotta_data2/:/terracotta_data
+networks:
+  myTSANet:

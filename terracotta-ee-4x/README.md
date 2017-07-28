@@ -17,7 +17,7 @@ What we'll cover with this guide:
 
 ### Build the image for the Terracotta Server
 
-1 - Set some variables for further reference
+1 - Set some variables for further reference (of course, update these based on your installation path and Terracotta version)
 
 ```bash
 TERRACOTTA_HOME=~/Applications/terracotta/home434x/
@@ -35,14 +35,16 @@ cp -R ./server/DockerConfigs.tc $TERRACOTTA_HOME/
 3 - Docker build and install image:
 
 ```bash
-cd $TERRACOTTA_HOME; docker build -t $TERRACOTTA_PREFIX/server:$TERRACOTTA_VERSION -f Dockerfile.tc .
+cd $TERRACOTTA_HOME; \
+  docker build -t $TERRACOTTA_PREFIX/server:$TERRACOTTA_VERSION -f Dockerfile.tc .
 ```
 
 NOTE: By default, the docker sceript tries to find the terracotta-license file at the root of the Terracotta inzstall.
 But if the terracotta-license key is NOT at the root of the Terracotta install, and rather in 1 of the subfolders, you can specify the relative path to it via variable
 
 ```bash
-cd $TERRACOTTA_HOME; docker build -t $TERRACOTTA_PREFIX/server:$TERRACOTTA_VERSION --build-arg TERRACOTTA_LICENSE_KEY=./server/terracotta-license.key -f Dockerfile.tc .
+cd $TERRACOTTA_HOME; \
+  docker build -t $TERRACOTTA_PREFIX/server:$TERRACOTTA_VERSION --build-arg TERRACOTTA_LICENSE_KEY=./server/terracotta-license.key -f Dockerfile.tc .
 ```
 
 4 - Should see successful message:
@@ -56,6 +58,7 @@ Successfully tagged terracotta-ee/server:4.3.4.1.4
 
 ```bash
 docker images
+
 REPOSITORY             TAG                 IMAGE ID            CREATED             SIZE
 terracotta-ee/server   4.3.4.1.4           e377c6a64583        10 seconds ago      212MB
 openjdk                8-jdk-alpine        478bf389b75b        4 weeks ago         101MB
@@ -70,7 +73,7 @@ rm -R $TERRACOTTA_HOME/DockerConfigs.tc/
 
 ### Build the image for the Terracotta Management Server (TMC)
 
-1 - Set some variables for further reference
+1 - Set some variables for further reference (of course, update these based on your installation path and Terracotta version)
 
 ```bash
 TERRACOTTA_HOME=~/Applications/terracotta/home434x/
@@ -88,14 +91,16 @@ cp -R ./management/DockerConfigs.tmc $TERRACOTTA_HOME/
 3 - Docker build and install image:
 
 ```bash
-cd $TERRACOTTA_HOME; docker build -t $TERRACOTTA_PREFIX/management:$TERRACOTTA_VERSION -f Dockerfile.tmc .
+cd $TERRACOTTA_HOME; \
+  docker build -t $TERRACOTTA_PREFIX/management:$TERRACOTTA_VERSION -f Dockerfile.tmc .
 ```
 
 NOTE: By default, the docker sceript tries to find the terracotta-license file at the root of the Terracotta install.
 But if the terracotta-license key is NOT at the root of the Terracotta install, and rather in 1 of the subfolders, you can specify the relative path to it via variable
 
 ```bash
-cd $TERRACOTTA_HOME; docker build -t $TERRACOTTA_PREFIX/management:$TERRACOTTA_VERSION --build-arg TERRACOTTA_LICENSE_KEY=./tools/management-console/terracotta-license.key -f Dockerfile.tmc .
+cd $TERRACOTTA_HOME; \
+  docker build -t $TERRACOTTA_PREFIX/management:$TERRACOTTA_VERSION --build-arg TERRACOTTA_LICENSE_KEY=./tools/management-console/terracotta-license.key -f Dockerfile.tmc .
 ```
 
 4 - Should see successful message:
@@ -109,6 +114,7 @@ Successfully tagged terracotta-ee/management:4.3.4.1.4
 
 ```bash
 docker images
+
 REPOSITORY                 TAG                 IMAGE ID            CREATED             SIZE
 terracotta-ee/management   4.3.4.1.4           a6a151fc4998        6 minutes ago       300MB
 terracotta-ee/server       4.3.4.1.4           7eaf2a3c438e        15 minutes ago      212MB
@@ -155,6 +161,7 @@ First, check the process:
 
 ```bash
 docker ps
+
 CONTAINER ID        IMAGE                            COMMAND                  CREATED             STATUS              PORTS                                                      NAMES
 7939215f551f        terracotta-ee/server:4.3.4.1.4   "/bin/sh -c 'sed -..."   23 seconds ago      Up 23 seconds       0.0.0.0:9510->9510/tcp, 0.0.0.0:9540->9540/tcp, 9530/tcp   tsa_singlenode
 ```
@@ -172,6 +179,7 @@ docker logs tsa_singlenode
 ```bash
 docker stop tsa_singlenode
 docker ps
+
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
 ```
 
@@ -209,6 +217,7 @@ First, check the processes:
 
 ```bash
 docker ps
+
 CONTAINER ID        IMAGE                            COMMAND                  CREATED             STATUS              PORTS                                        NAMES
 7687ee3e9b29        terracotta-ee/server:4.3.4.1.4   "/bin/sh -c 'sed -..."   3 seconds ago       Up 2 seconds        9530/tcp, 9540/tcp, 0.0.0.0:9610->9510/tcp   tsa2
 5ca30dfa5396        terracotta-ee/server:4.3.4.1.4   "/bin/sh -c 'sed -..."   11 seconds ago      Up 10 seconds       9530/tcp, 0.0.0.0:9510->9510/tcp, 9540/tcp   tsa1

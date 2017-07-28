@@ -9,9 +9,11 @@ Important: This guide assumes that you have a Terracotta EE kit and a Terracotta
 
 1 - Set some variables for further reference
 
-$ TERRACOTTA_HOME=~/Applications/terracotta/home434x/
-$ TERRACOTTA_PREFIX=terracotta-ee
-$ TERRACOTTA_VERSION=4.3.4.1.4
+```bash
+TERRACOTTA_HOME=~/Applications/terracotta/home434x/
+TERRACOTTA_PREFIX=terracotta-ee
+TERRACOTTA_VERSION=4.3.4.1.4
+```
 
 2 - Copy the TC Server docker script to the root of your Terracotta EE install and navigate to it.
 

@@ -41,7 +41,6 @@ package -DskipTests
 # expose the webapp port
 EXPOSE 9966
 
-# setting the license location -- terracotta license file should be added at the root of the mounted volume
 # Add terracotta license key
 ADD $TERRACOTTA_LICENSE_KEY /usr/src/app/
 ENV TC_LICENSE_PATH "/usr/src/app/terracotta-license.key"

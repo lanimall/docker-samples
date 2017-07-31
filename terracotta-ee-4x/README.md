@@ -287,23 +287,66 @@ We will be using the well known "spring-pet-clinic" application as an example. O
 1 - Create the custom pet-clinic image
 
 ```bash
+TERRACOTTA_VERSION=4.3.4.1.4
+EHCACHE_VERSION=2.10.4.1.4
+
 cd ./clients/pet-clinic/
-docker build -t spring-petclinic/clustered-ehcache:4.3.4.1.4 \
-  --build-arg ehcache_version=2.10.4.1.4 --build-arg terracotta_version=4.3.4.1.4 \
+
+docker build -t spring-petclinic/clustered-ehcache:$terracotta_version \
+  --build-arg ehcache_version=$EHCACHE_VERSION --build-arg terracotta_version=$TERRACOTTA_VERSION \
   -f Dockerfile .
 ```
 
 2 - Run it
 
-TBD
+Noptice the environment variable "TSA_URL": it defines the url to a running Terracotta cluster.
+Depending on if you're running a single node or a Terracotta active / mirror cluster, you should update that variable's value properly.
 
+```bash
+TSA_URL=tsa1:9510,tsa2:9510
 
+docker run -p 9966:9966 --name pet-clinic -e TSA_URL=$TSA_URL --net=myTSANet -d spring-petclinic/clustered-ehcache:$TERRACOTTA_VERSION
+```
 
+3 - Check all is well
 
+First, check the processes:
 
+```bash
+docker ps
 
+CONTAINER ID        IMAGE                            COMMAND                  CREATED             STATUS              PORTS                                        NAMES
+7687ee3e9b29        terracotta-ee/server:4.3.4.1.4   "/bin/sh -c 'sed -..."   3 seconds ago       Up 2 seconds        9530/tcp, 9540/tcp, 0.0.0.0:9610->9510/tcp   tsa2
+5ca30dfa5396        terracotta-ee/server:4.3.4.1.4   "/bin/sh -c 'sed -..."   11 seconds ago      Up 10 seconds       9530/tcp, 0.0.0.0:9510->9510/tcp, 9540/tcp   tsa1
+5ca30ddw2344        spring-petclinic/clustered-ehcache:4.3.4.1.4   "mvn tomcat7:run ..."   12 seconds ago      Up 10 seconds       9966/tcp, 0.0.0.0:9966->9966/tcp  pet-clinic
+```
 
+Second, check the logs (and particularly check that the application started properly and connected to the Terracotta cluster)
 
+```bash
+docker logs pet-clinic
+```
 
+Finally, you could also check that you see a cache client connected in the Terracotta management console (http://localhost:9889/tmc)
 
+## Using docker-compose to automate most of it!!
 
+I create docker-compose scripts so that we could start all related component from 1 single command.
+
+NOTE: First edit these docker compose scripts with the right TERRACOTTA / EHCAHE versions in there.
+
+For example, to start 2 Terracotta nodes in a cluster + Terracotta Mamnagement console + 1 cache client ("pet-clinic"), simply do:
+
+```bash
+cd ./clients/pet-clinic/
+docker-compose -f docker-compose-AandP.yml up
+```
+
+Or for the same with a single Terracotta node:
+
+```bash
+cd ./clients/pet-clinic/
+docker-compose -f docker-compose.yml up
+```
+
+Both command should start the full infrastructure without issues.

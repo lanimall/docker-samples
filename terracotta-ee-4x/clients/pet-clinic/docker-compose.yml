@@ -6,10 +6,12 @@ services:
       - "9966:9966"
     networks:
       - myTSANet
+    environment:
+      - TSA_URL=tsa:9510
     links:
       - tsa
   tmc:
-    image: wm_912/terracotta_tmc:4.3.3.1.10
+    image: terracotta-ee/management:4.3.4.1.4
     ports:
       - "9889:9889"
     networks:
@@ -17,7 +19,7 @@ services:
     links:
       - tsa
   tsa:
-    image: wm_912/terracotta_server:4.3.3.1.10
+    image: terracotta-ee/server:4.3.4.1.4
     hostname: tsa
     networks:
       myTSANet:

@@ -7,7 +7,7 @@ What we'll cover with this guide:
  - [Run Terracotta instances from newly created docker images](#run-terracotta-instances-from-these-images)
  - [Run Terracotta Management Console instances from newly created docker images](#adding-the-terracotta-management-console)
  - [Create and run docker images for cache clients connecting to the Terracotta](#adding-some-cache-application-clients)
- - [Tie everything together with docker-compose](#Using-docker-compose-to-automate-most-of-it)
+ - [Tie everything together with docker-compose](#using-docker-compose-to-automate-most-of-it)
 
 **Important**: Terracotta Enterprise software and license are required for this guide (we will be using them to create the docker images)
 

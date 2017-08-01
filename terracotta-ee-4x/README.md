@@ -2,16 +2,24 @@
 
 Some working docker samples and instructions to "dockerize" Terracotta Enterprise 4.x and related components.
 What we'll cover with this guide:
- - Create and run docker images for Terracotta EE Server component (a.k.a [BigMemory Max/Terracotta-EE](http://terracotta.org/products/bigmemorymax))
- - Create and run docker images for Terracotta EE Monitoring component (a.k.a [Terracotta Mamagement Console (TMC)](http://terracotta.org/documentation/4.0/tms/tms))
- - Create and run docker images for cache clients connecting to the Terracotta
- - Tie everything together with docker-compose [Go Here][Using docker-compose to automate most of it]
+ - [Create docker images for Terracotta EE Server component](#build-the-terracotta-ee-images-from-existing-package)
+ - [Create docker images for Terracotta EE Monitoring component](#build-the-image-for-the-tmc-terracotta-management-server)
+ - [Run Terracotta instances from newly created docker images](#run-terracotta-instances-from-these-images)
+ - [Run Terracotta Management Console instances from newly created docker images](#adding-the-terracotta-management-console)
+ - [Create and run docker images for cache clients connecting to the Terracotta](#adding-some-cache-application-clients)
+ - [Tie everything together with docker-compose](#Using-docker-compose-to-automate-most-of-it)
 
 **Important**: Terracotta Enterprise software and license are required for this guide (we will be using them to create the docker images)
 
-**For Terracotta open-source versions, please refer to:**
- - GitHub: [Terracotta-OSS/docker on GitHub](https://github.com/Terracotta-OSS/docker)
- - Docker Hub: [Terracotta on Docker Hub](https://hub.docker.com/u/terracotta/)
+** For more information on Terracotta EE, please refer to:**
+ - [BigMemory Max/Terracotta-EE](http://terracotta.org/products/bigmemorymax)
+ - [Terracotta Mamagement Console (TMC)](http://terracotta.org/documentation/4.0/tms/tms)
+
+**For Terracotta open-source versions, and related docker guides, please refer to:**
+ - [Terracotta Open-Source](http://terracotta.org/downloads/open-source/catalog)
+ - [Ehcache Open-Source](http://www.ehcache.org/)
+ - [Terracotta OSS Docker Repo on GitHub](https://github.com/Terracotta-OSS/docker)
+ - [Terracotta on Docker Hub](https://hub.docker.com/u/terracotta/)
 
 ## Build the Terracotta EE images from existing package
 
@@ -62,7 +70,7 @@ bigmemory-max/server   4.3.4.1.4           e377c6a64583        10 seconds ago   
 openjdk                8-jdk-alpine        478bf389b75b        4 weeks ago         101MB
 ```
 
-### Build the image for the Terracotta Management Server (TMC)
+### Build the image for the TMC Terracotta Management Server
 
 1 - In your terminal, set some variables for further reference (in case you're starting from here somehow)
 

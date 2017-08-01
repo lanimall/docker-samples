@@ -5,7 +5,7 @@ What we'll cover with this guide:
  - Create and run docker images for Terracotta EE Server component (a.k.a [BigMemory Max/Terracotta-EE](http://terracotta.org/products/bigmemorymax))
  - Create and run docker images for Terracotta EE Monitoring component (a.k.a [Terracotta Mamagement Console (TMC)](http://terracotta.org/documentation/4.0/tms/tms))
  - Create and run docker images for cache clients connecting to the Terracotta
- - Tie everything together with docker-compose
+ - Tie everything together with docker-compose [Go Here][Using docker-compose to automate most of it]
 
 **Important**: Terracotta Enterprise software and license are required for this guide (we will be using them to create the docker images)
 
@@ -23,8 +23,8 @@ What we'll cover with this guide:
 
 **Conventions**: All the docker scripts created in this project will expect:
  - The Terracotta EE package shoudl be named following the convention: ${TERRACOTTA_PREFIX}-${TERRACOTTA_VERSION}.tar.gz
- -- ${TERRACOTTA_PREFIX} will become the docker image prefix
- -- ${TERRACOTTA_VERSION} will become the docker image version
+  * ${TERRACOTTA_PREFIX} will become the docker image prefix
+  * ${TERRACOTTA_VERSION} will become the docker image version
  - The Terracotta license key (required for EE) should be named "terracotta-license.key"
 
 ### Build the image for the Terracotta Server
@@ -315,7 +315,7 @@ docker logs pet-clinic
 
 Finally, you could also check that you see a cache client connected in the Terracotta management console (http://localhost:9889/tmc)
 
-## Using docker-compose to automate most of it!!
+## Using docker-compose to automate most of it
 
 I create docker-compose scripts so that we could start all related component from 1 single command.
 

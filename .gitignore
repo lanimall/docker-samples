@@ -1,14 +1,18 @@
 .DS_Store
 terracotta-license.key
+*.tar.gz
 
 # Compiled source #
 ###################
+*.jar
+*.war
+*.ear
 *.com
 *.class
 *.dll
 *.exe
 *.o
-#*.so
+*.so
 bin/
 target/
 out/

@@ -13,45 +13,43 @@ What we'll cover with this guide:
  - GitHub: [Terracotta-OSS/docker on GitHub](https://github.com/Terracotta-OSS/docker)
  - Docker Hub: [Terracotta on Docker Hub](https://hub.docker.com/u/terracotta/)
 
-## Build the EE Images from existing installation
+## Build the Terracotta EE images from existing package
+
+### Pre-requisites and conventions
+
+1 - Clone this repository
+
+2 - Copy the Terracotta EE installation package (tar.gz) and license key in the ./resources directory
+
+**Conventions**: All the docker scripts created in this project will expect:
+ - The Terracotta EE package shoudl be named following the convention: ${TERRACOTTA_PREFIX}-${TERRACOTTA_VERSION}.tar.gz
+ -- ${TERRACOTTA_PREFIX} will become the docker image prefix
+ -- ${TERRACOTTA_VERSION} will become the docker image version
+ - The Terracotta license key (required for EE) should be named "terracotta-license.key"
 
 ### Build the image for the Terracotta Server
 
-1 - Set some variables for further reference (of course, update these based on your installation path and Terracotta version)
+1 - In your terminal, set some variables for further reference 
 
 ```bash
-TERRACOTTA_HOME=~/Applications/terracotta/home434x/
-TERRACOTTA_PREFIX=terracotta-ee
+TERRACOTTA_PREFIX=bigmemory-max
 TERRACOTTA_VERSION=4.3.4.1.4
 ```
 
-2 - Copy the TC Server docker script to the root of your Terracotta EE install and navigate to it.
+2 - Create the Docker image:
 
 ```bash
-cp ./server/Dockerfile.tc $TERRACOTTA_HOME/
-cp -R ./server/DockerConfigs.tc $TERRACOTTA_HOME/
-```
-
-3 - Docker build and install image:
-
-```bash
-cd $TERRACOTTA_HOME; \
-  docker build -t $TERRACOTTA_PREFIX/server:$TERRACOTTA_VERSION -f Dockerfile.tc .
-```
-
-NOTE: By default, the docker sceript tries to find the terracotta-license file at the root of the Terracotta inzstall.
-But if the terracotta-license key is NOT at the root of the Terracotta install, and rather in 1 of the subfolders, you can specify the relative path to it via variable
-
-```bash
-cd $TERRACOTTA_HOME; \
-  docker build -t $TERRACOTTA_PREFIX/server:$TERRACOTTA_VERSION --build-arg TERRACOTTA_LICENSE_KEY=./server/terracotta-license.key -f Dockerfile.tc .
+docker build -t $TERRACOTTA_PREFIX/server:$TERRACOTTA_VERSION \
+  --build-arg TERRACOTTA_PREFIX=$TERRACOTTA_PREFIX \
+  --build-arg TERRACOTTA_VERSION=$TERRACOTTA_VERSION \
+  -f Dockerfile.tc .
 ```
 
 4 - Should see successful message:
 
 ```bash
 Successfully built [...]
-Successfully tagged terracotta-ee/server:4.3.4.1.4
+Successfully tagged bigmemory-max/server:4.3.4.1.4
 ```
 
 5 - Verify image is in the local reporsitory:
@@ -60,54 +58,33 @@ Successfully tagged terracotta-ee/server:4.3.4.1.4
 docker images
 
 REPOSITORY             TAG                 IMAGE ID            CREATED             SIZE
-terracotta-ee/server   4.3.4.1.4           e377c6a64583        10 seconds ago      212MB
+bigmemory-max/server   4.3.4.1.4           e377c6a64583        10 seconds ago      212MB
 openjdk                8-jdk-alpine        478bf389b75b        4 weeks ago         101MB
-```
-
-6 - (optional) Cleanup the docker scripts and configs fro mthe Terracotta directory
-
-```bash
-rm $TERRACOTTA_HOME/Dockerfile.tc
-rm -R $TERRACOTTA_HOME/DockerConfigs.tc/
 ```
 
 ### Build the image for the Terracotta Management Server (TMC)
 
-1 - Set some variables for further reference (of course, update these based on your installation path and Terracotta version)
+1 - In your terminal, set some variables for further reference (in case you're starting from here somehow)
 
 ```bash
-TERRACOTTA_HOME=~/Applications/terracotta/home434x/
-TERRACOTTA_PREFIX=terracotta-ee
+TERRACOTTA_PREFIX=bigmemory-max
 TERRACOTTA_VERSION=4.3.4.1.4
-```
-
-2 - Copy the TMC docker script to the root of your Terracotta EE install and navigate to it.
-
-```bash
-cp ./management/Dockerfile.tmc $TERRACOTTA_HOME/
-cp -R ./management/DockerConfigs.tmc $TERRACOTTA_HOME/
 ```
 
 3 - Docker build and install image:
 
 ```bash
-cd $TERRACOTTA_HOME; \
-  docker build -t $TERRACOTTA_PREFIX/management:$TERRACOTTA_VERSION -f Dockerfile.tmc .
-```
-
-NOTE: By default, the docker sceript tries to find the terracotta-license file at the root of the Terracotta install.
-But if the terracotta-license key is NOT at the root of the Terracotta install, and rather in 1 of the subfolders, you can specify the relative path to it via variable
-
-```bash
-cd $TERRACOTTA_HOME; \
-  docker build -t $TERRACOTTA_PREFIX/management:$TERRACOTTA_VERSION --build-arg TERRACOTTA_LICENSE_KEY=./tools/management-console/terracotta-license.key -f Dockerfile.tmc .
+docker build -t $TERRACOTTA_PREFIX/management:$TERRACOTTA_VERSION \
+  --build-arg TERRACOTTA_PREFIX=$TERRACOTTA_PREFIX \
+  --build-arg TERRACOTTA_VERSION=$TERRACOTTA_VERSION \
+  -f Dockerfile.tmc .
 ```
 
 4 - Should see successful message:
 
 ```bash
 Successfully built [...]
-Successfully tagged terracotta-ee/management:4.3.4.1.4
+Successfully tagged bigmemory-max/management:4.3.4.1.4
 ```
 
 5 - Verify image is in the local reporsitory:
@@ -116,16 +93,9 @@ Successfully tagged terracotta-ee/management:4.3.4.1.4
 docker images
 
 REPOSITORY                 TAG                 IMAGE ID            CREATED             SIZE
-terracotta-ee/management   4.3.4.1.4           a6a151fc4998        6 minutes ago       300MB
-terracotta-ee/server       4.3.4.1.4           7eaf2a3c438e        15 minutes ago      212MB
+bigmemory-max/management   4.3.4.1.4           a6a151fc4998        6 minutes ago       300MB
+bigmemory-max/server       4.3.4.1.4           7eaf2a3c438e        15 minutes ago      212MB
 openjdk                    8-jdk-alpine        478bf389b75b        4 weeks ago         101MB
-```
-
-6 - (optional) Cleanup the docker scripts and configs fro mthe Terracotta directory
-
-```bash
-rm $TERRACOTTA_HOME/Dockerfile.tmc
-rm -R $TERRACOTTA_HOME/DockerConfigs.tmc/
 ```
 
 ## Run Terracotta instances from these images
@@ -135,10 +105,14 @@ rm -R $TERRACOTTA_HOME/DockerConfigs.tmc/
 1 - Working Directory for our docker instances
 
 Because we exposed a docker volume for the Terracotta data (in case we tell TC to backup all in memory data to disk), we should create a working directory first before we launch the instances.
-Let's create a variable so we can reuse the same path for the various commands below:
+Let's create a variable so we can reuse the same path for the various commands below.
+Let's also set the same TERRACOTTA_PREFIX and TERRACOTTA_VERSION variables for further reference (in case you're starting from here somehow)
+
 
 ```bash
 TERRACOTTA_DOCKER_WORKING_DIR=~/Applications/terracotta/docker-working-dir/tc_data
+TERRACOTTA_PREFIX=bigmemory-max
+TERRACOTTA_VERSION=4.3.4.1.4
 ```
 
 2 - Create working dir
@@ -152,7 +126,7 @@ mkdir -p $TERRACOTTA_DOCKER_WORKING_DIR
 ```bash
 docker run -p 9510:9510 -p 9540:9540 --name tsa_singlenode \
   -v $TERRACOTTA_DOCKER_WORKING_DIR:/terracotta_data \
-  -d terracotta-ee/server:4.3.4.1.4 
+  -d $TERRACOTTA_PREFIX/server:$TERRACOTTA_VERSION
 ```
 
 4 - Check all is well
@@ -163,7 +137,7 @@ First, check the process:
 docker ps
 
 CONTAINER ID        IMAGE                            COMMAND                  CREATED             STATUS              PORTS                                                      NAMES
-7939215f551f        terracotta-ee/server:4.3.4.1.4   "/bin/sh -c 'sed -..."   23 seconds ago      Up 23 seconds       0.0.0.0:9510->9510/tcp, 0.0.0.0:9540->9540/tcp, 9530/tcp   tsa_singlenode
+7939215f551f        bigmemory-max/server:4.3.4.1.4   "/bin/sh -c 'sed -..."   23 seconds ago      Up 23 seconds       0.0.0.0:9510->9510/tcp, 0.0.0.0:9540->9540/tcp, 9530/tcp   tsa_singlenode
 ```
 
 Second, check the logs:
@@ -174,7 +148,7 @@ docker logs tsa_singlenode
 
 ### Two Terracotta nodes (active / mirror)
 
-0 - if you haven't already, stop the single node that may still be running
+0 - (optional) If you haven't already, stop the single node that may still be running
 
 ```bash
 docker stop tsa_singlenode
@@ -182,8 +156,6 @@ docker ps
 
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
 ```
-
-Great, nothing is runnning anymore...we can move forward
 
 1 - Because we need the 2 Terracotta nodes to talk to each other, let's first create a docker network that will be used by the 2 TC processes.
 
@@ -199,7 +171,7 @@ TSA1:
 docker run -p 9510:9510 --hostname tsa1 --name tsa1 \
   -v $TERRACOTTA_DOCKER_WORKING_DIR/terracotta_data1/:/terracotta_data \
   -e TC_SERVER1=tsa1 -e TC_SERVER2=tsa2 --net=myTSANet \
-  -d terracotta-ee/server:4.3.4.1.4 
+  -d $TERRACOTTA_PREFIX/server:$TERRACOTTA_VERSION
 ```
 
 TSA2:
@@ -208,7 +180,7 @@ TSA2:
 docker run -p 9610:9510 --hostname tsa2 --name tsa2 \
   -v $TERRACOTTA_DOCKER_WORKING_DIR/terracotta_data2/:/terracotta_data \
   -e TC_SERVER1=tsa1 -e TC_SERVER2=tsa2 --net=myTSANet \
-  -d terracotta-ee/server:4.3.4.1.4 
+  -d $TERRACOTTA_PREFIX/server:$TERRACOTTA_VERSION
 ```
 
 3 - Check all is well
@@ -219,8 +191,8 @@ First, check the processes:
 docker ps
 
 CONTAINER ID        IMAGE                            COMMAND                  CREATED             STATUS              PORTS                                        NAMES
-7687ee3e9b29        terracotta-ee/server:4.3.4.1.4   "/bin/sh -c 'sed -..."   3 seconds ago       Up 2 seconds        9530/tcp, 9540/tcp, 0.0.0.0:9610->9510/tcp   tsa2
-5ca30dfa5396        terracotta-ee/server:4.3.4.1.4   "/bin/sh -c 'sed -..."   11 seconds ago      Up 10 seconds       9530/tcp, 0.0.0.0:9510->9510/tcp, 9540/tcp   tsa1
+7687ee3e9b29        bigmemory-max/server:4.3.4.1.4   "/bin/sh -c 'sed -..."   3 seconds ago       Up 2 seconds        9530/tcp, 9540/tcp, 0.0.0.0:9610->9510/tcp   tsa2
+5ca30dfa5396        bigmemory-max/server:4.3.4.1.4   "/bin/sh -c 'sed -..."   11 seconds ago      Up 10 seconds       9530/tcp, 0.0.0.0:9510->9510/tcp, 9540/tcp   tsa1
 ```
 
 Second, check the logs (and particularly check that both TC nodes have a status of ACTIVE and PASSIVE_STANDBY, which proves that both node are talking to each other)
@@ -251,24 +223,34 @@ I see amongst other log entries:
 
 ## Adding the Terracotta Management Console
 
+0 - First, as befoire, set some variables for further reference (in case you're starting from here somehow)
+
+```bash
+TERRACOTTA_PREFIX=bigmemory-max
+TERRACOTTA_VERSION=4.3.4.1.4
+```
+
 To be able to visually see what's going on with the Terracotta clister or the connected client, the Enterprise (EE) version offers a Management console. 
 
 1 - Let's start TMC, using the same network as the one used by the 2 running Terracotta processes
 
 ```bash
-docker run -p 9889:9889 --name tmc --net=myTSANet -d terracotta-ee/management:4.3.4.1.4
+docker run -p 9889:9889 --name tmc --net=myTSANet \
+  -d $TERRACOTTA_PREFIX/server:$TERRACOTTA_VERSION
 ```
 
-2 - Restart TMC if it's the first time launched
+2 - (First time only) Open TMC Web UI and set authentication scheme
 
-If it's the first time we start it, TMC will ask if we want to use or disable authentication. Your choice, but after that, we'll need to restart TMC (in other words, the TMC instance.)
+If all went well, the TMC UI should now be accessible on port 9889 at http://localhost:9889/tmc
+If it's the first time you started this instance though, you will first need to chose how you want to secure the TMC UI.
+Once you did, you will need to restart the TMC instance.
 
 ```bash
 docker stop tmc
 docker start tmc
 ```
 
-3 - Login to the TMC UI.
+3 - Login to the TMC Web UI.
 
 If all went well, the TMC UI should now be accessible on port 9889 at http://localhost:9889/tmc
 
@@ -278,23 +260,27 @@ Click "Create Connection", and enter either "http://tsa1:9540" or "http://tsa2:9
 
 That should find the running Terracotta cluster without issues...now you can monitor whatr's happening! 
 
-## Adding some cache clients
+## Adding some cache application clients
 
 So far, we have a running Terracotta cluster (2 nodes, active / mirror) and a running Terracotta Management Console to monitor in real-time what's going on.
 The last missing piece is to have an actual client application that use Terracotta.
-We will be using the well known "spring-pet-clinic" application as an example. Other samples will be added too.
+For now, we will be using a sample java application known-as [spring-pet-clinic](https://github.com/spring-projects/spring-petclinic) 
+Other samples will be added too TBD
+
+0 - In your terminal, set some variables for further reference
+
+```bash
+TERRACOTTA_PREFIX=bigmemory-max
+TERRACOTTA_VERSION=4.3.4.1.4
+EHCACHE_VERSION=2.10.4.1.4
+```
 
 1 - Create the custom pet-clinic image
 
 ```bash
-TERRACOTTA_VERSION=4.3.4.1.4
-EHCACHE_VERSION=2.10.4.1.4
-
-cd ./clients/pet-clinic/
-
-docker build -t spring-petclinic/clustered-ehcache:$terracotta_version \
+docker build -t spring-petclinic/$TERRACOTTA_PREFIX:$TERRACOTTA_VERSION \
   --build-arg ehcache_version=$EHCACHE_VERSION --build-arg terracotta_version=$TERRACOTTA_VERSION \
-  -f Dockerfile .
+  -f Dockerfile.petclinic.clients .
 ```
 
 2 - Run it
@@ -305,7 +291,7 @@ Depending on if you're running a single node or a Terracotta active / mirror clu
 ```bash
 TSA_URL=tsa1:9510,tsa2:9510
 
-docker run -p 9966:9966 --name pet-clinic -e TSA_URL=$TSA_URL --net=myTSANet -d spring-petclinic/clustered-ehcache:$TERRACOTTA_VERSION
+docker run -p 9966:9966 --name pet-clinic -e TSA_URL=$TSA_URL --net=myTSANet -d spring-petclinic/bigmemory-max:$TERRACOTTA_VERSION
 ```
 
 3 - Check all is well

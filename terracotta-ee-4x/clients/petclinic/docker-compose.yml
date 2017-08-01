@@ -1,0 +1,34 @@
+version: '3'
+services:
+  petclinic:
+    build: .
+    ports:
+      - "9966:9966"
+    networks:
+      - myTSANet
+    environment:
+      - TSA_URL=tsa:9510
+    links:
+      - tsa
+  tmc:
+    image: terracotta-ee/management:4.3.4.1.4
+    ports:
+      - "9889:9889"
+    networks:
+      - myTSANet
+    links:
+      - tsa
+  tsa:
+    image: terracotta-ee/server:4.3.4.1.4
+    hostname: tsa
+    networks:
+      myTSANet:
+        aliases:
+          - tsa
+    ports:
+      - "9510:9510"
+      - "9530:9530"
+    volumes:
+      - $PWD/../server/terracotta_data_single/:/terracotta_data
+networks:
+  myTSANet:

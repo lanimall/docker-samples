@@ -1,0 +1,53 @@
+# Using the latest OpenJDK 8 update (see https://hub.docker.com/_/openjdk/ for more details)
+FROM openjdk:8-jdk-alpine
+
+MAINTAINER fabien.sanglier@softwareag.com
+
+RUN apk --update add openssl ca-certificates bash
+
+#
+# IMPORTANT!!!!: to work as-is, this docker script requires the Terracotta/BigMemory kit 
+# and the Terracotta EE license key to be copied in the ./resources folder
+# Arguments here are provided in case the path or filenames are different.
+#
+ARG TERRACOTTA_PREFIX=bigmemory-max
+ARG TERRACOTTA_VERSION=4.3.4.1.4
+ARG TERRACOTTA_LICENSE_KEY=./resources/terracotta-license.key
+ARG TERRACOTTA_PACKAGE=./resources/${TERRACOTTA_PREFIX}-${TERRACOTTA_VERSION}.tar.gz
+
+# Copy the resources onto the image
+RUN mkdir /terracotta
+COPY $TERRACOTTA_PACKAGE /terracotta/terracotta.tar.gz
+COPY $TERRACOTTA_LICENSE_KEY /terracotta/terracotta-license.key
+
+RUN cd /terracotta \
+  && tar xzf terracotta.tar.gz --strip-components=1 \
+  && rm terracotta.tar.gz \
+  && rm -Rf server/ sessions/ code-samples/ config-samples/ apis/
+
+# copy modified jetty.xml and log4j to log to stdout instead of file 
+COPY ./management/DockerConfigs.tmc/jetty.xml /terracotta/tools/management-console/etc
+COPY ./management/DockerConfigs.tmc/log4j.properties /terracotta
+
+# Set JAVA HOME
+ENV JAVA_HOME /usr/lib/jvm/java-1.8-openjdk/
+
+# adding the user terracotta and making its home the /terracotta folder, to not run the server as root
+RUN addgroup -S terracotta && adduser -h /terracotta -s /bin/bash -G terracotta -S -D terracotta
+RUN chown -R terracotta:terracotta /terracotta
+USER terracotta
+
+# all below commands will now be relative to this path
+WORKDIR /terracotta/tools/management-console/
+
+# Adding license key in the JAVA OPTS
+ENV JAVA_OPTS="-Dcom.tc.productkey.path=/terracotta/terracotta-license.key"
+
+# the tmc listens on port 9889 for browsers connections
+EXPOSE 9889
+
+# using a custom log4j.properties configuration file to redirect all logs to STDOUT
+ENV JAVA_OPTS="-Dlog4j.configuration=/terracotta/log4j.properties"
+
+# using the startup script as the entrypoint
+ENTRYPOINT ["bin/start-tmc.sh"]

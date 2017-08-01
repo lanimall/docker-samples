@@ -1,0 +1,75 @@
+# using the latest OpenJDK 8 update (see https://registry.hub.docker.com/u/library/java/ for more details)
+FROM openjdk:8-jdk-alpine
+
+MAINTAINER fabien.sanglier@softwareag.com
+
+RUN apk --update add curl tar git openssl ca-certificates bash
+
+#
+# IMPORTANT!!!!: to work as-is, this docker script requires the Terracotta/BigMemory kit 
+# and the Terracotta EE license key to be copied in the ./resources folder
+# Arguments here are provided in case the path or filenames are different.
+#
+ARG TERRACOTTA_PREFIX=bigmemory-max
+ARG TERRACOTTA_VERSION=4.3.4.1.4
+ARG EHCACHE_VERSION=2.10.4.1.4
+ARG TERRACOTTA_LICENSE_KEY=./resources/terracotta-license.key
+ARG TERRACOTTA_PACKAGE=./resources/${TERRACOTTA_PREFIX}-${TERRACOTTA_VERSION}.tar.gz
+
+# Copy the resources onto the image
+RUN mkdir /terracotta
+COPY $TERRACOTTA_PACKAGE /terracotta/terracotta.tar.gz
+COPY $TERRACOTTA_LICENSE_KEY /terracotta/terracotta-license.key
+
+RUN cd /terracotta \
+  && tar xzf terracotta.tar.gz --strip-components=1 \
+  && rm terracotta.tar.gz \
+  && rm -Rf tools/ sessions/ code-samples/ config-samples/ server/
+
+# Set JAVA HOME
+ENV JAVA_HOME /usr/lib/jvm/java-1.8-openjdk/
+
+# maven section inspired by https://github.com/carlossg/docker-maven/blob/8ab542b907e69c5269942bcc0915d8dffcc7e9fa/jdk-8/Dockerfile
+ENV MAVEN_VERSION 3.3.9
+
+RUN curl -fsSL https://archive.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz | tar xzf - -C /usr/share \
+  && mv /usr/share/apache-maven-$MAVEN_VERSION /usr/share/maven \
+  && ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
+
+ENV MAVEN_HOME /usr/share/maven
+
+# clone app from repository
+RUN git clone https://github.com/lanimall/spring-petclinic.git /usr/src/app/
+WORKDIR /usr/src/app/
+RUN git checkout using-oss-clustered-ehcache
+
+# before running the mvn build for the app, let's maven install the Terracotta / Ehcache jars 
+COPY ./clients/install-terracotta-clientapis.sh /terracotta
+RUN chmod +x /terracotta/install-terracotta-clientapis.sh
+RUN cd /terracotta && ./install-terracotta-clientapis.sh
+
+# RUN mvn install:install-file -Dfile=/terracotta/apis/ehcache/lib/ehcache*.jar -DgroupId=net.sf.ehcache -DartifactId=ehcache-ee -Dversion=$EHCACHE_VERSION -Dpackaging=jar \
+#  && mvn install:install-file -Dfile=/terracotta/apis/toolkit/lib/*toolkit*.jar -DgroupId=org.terracotta -DartifactId=terracotta-toolkit-runtime-ee -Dversion=$TERRACOTTA_VERSION -Dpackaging=jar
+
+# Build the app here. In a more serious deployment scenario and environment, this is where you would download your binaries
+RUN mvn \
+  -Dehcache.artifactid=ehcache-ee -Dehcache.version=$EHCACHE_VERSION \
+  -Dterracotta-toolkit-runtime.artifactid=terracotta-toolkit-runtime-ee -Dterracotta-toolkit-runtime.version=$TERRACOTTA_VERSION \
+  clean install -DskipTests
+
+# expose the webapp port
+EXPOSE 9966
+
+# the default TSA url - can be overriden to match your environments
+ENV TSA_URL 'tsa:9510'
+
+# Adding relevant params in JAVA OPTS
+ENV JAVA_OPTS="-Dcom.tc.productkey.path=/terracotta/terracotta-license.key \
+  -Dehcache.artifactid=ehcache-ee -Dehcache.version=$EHCACHE_VERSION \
+  -Dterracotta-toolkit-runtime.artifactid=terracotta-toolkit-runtime-ee -Dterracotta-toolkit-runtime.version=$TERRACOTTA_VERSION"
+
+# use a custom entry point to be able to read the ENV var properly
+COPY ./clients/petclinic/docker-entrypoint.sh /usr/bin/
+RUN chmod +x /usr/bin/docker-entrypoint.sh
+
+ENTRYPOINT ["docker-entrypoint.sh"]

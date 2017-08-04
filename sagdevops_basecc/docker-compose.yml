@@ -1,0 +1,43 @@
+version: "3"
+
+services:
+  cce:
+    image: ${CC_IMAGE_PREFIX}/cce:${CC_VERSION}
+    build:
+      context: .
+      dockerfile: Dockerfile.cce
+      args:
+        CC_BOOTSTRAP: ${CC_VERSION}
+        CC_ENV: ${CC_VERSION}
+    ports:
+      - "8090:8090"
+      - "8091:8091"
+      - "8092:8092" # IMPORTANT: for mirror access
+  cli:
+    image: ${CC_IMAGE_PREFIX}/cli:${CC_VERSION}
+    build:
+      context: .
+      dockerfile: Dockerfile.cli
+      args:
+        CC_BOOTSTRAP: ${CC_VERSION}
+        CC_ENV: ${CC_VERSION}
+  spm:
+    image: ${CC_IMAGE_PREFIX}/spm:${CC_VERSION}
+    build:
+      context: .
+      dockerfile: Dockerfile.spm
+      args:
+        CC_BOOTSTRAP: ${CC_VERSION}
+        CC_ENV: ${CC_VERSION}
+    ports:
+      - "8092:8092"
+      - "8093:8093"
+  test:
+    image: ${CC_IMAGE_PREFIX}/cli:${CC_VERSION}
+    environment: 
+      CC_SERVER: cce
+    volumes: 
+      - .:/src
+    command: sagccant waitcc test
+    depends_on: 
+      - cce

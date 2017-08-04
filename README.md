@@ -1,7 +1,6 @@
 # Custom and Sample Docker Scripts for various products
 
-This repository is meant to be a general guide (with samples etc...) to dockerize various products or applications.
-
+This repository is meant to be group together all my various docker samples and projects.
 This is by no means an official documentation...merely a summary of my research and time spent on docker-related topics.
 
 #### Before proceeding, make sure to

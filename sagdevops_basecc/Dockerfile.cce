@@ -1,0 +1,47 @@
+# Pull CentOS 7 base image from the Docker Hub
+FROM centos:7
+
+MAINTAINER fabien.sanglier@softwareag.com
+
+# Update CentOS 7
+RUN yum update -y && yum upgrade -y
+
+# Install packages
+RUN yum install -y ant
+
+# Clean CentOS 7
+RUN yum clean all
+
+# MODIFY THIS to make your env name
+ARG SAG_HOME=/softwareag
+ARG CC_BOOTSTRAP=default
+ARG CC_ENV=default
+
+# create home dir for the install
+RUN mkdir $SAG_HOME
+
+# add bootstrap project
+ADD . $SAG_HOME/bootstrap
+
+# adding the user terracotta and making its home the /terracotta folder, to not run the server as root
+RUN groupadd -r saguser && useradd -r -g saguser saguser && usermod -d $SAG_HOME saguser
+RUN chown -R saguser:saguser $SAG_HOME
+USER saguser
+
+WORKDIR $SAG_HOME
+
+# start tooling, apply template(s), cleanup
+RUN cd $SAG_HOME/bootstrap/ \
+    && ant boot test stopcc \
+    -Dinstall.dir=$SAG_HOME -Dinstaller.dir=$SAG_HOME/Downloads -Dcc.cli.home=$SAG_HOME/CommandCentral/client \
+    -Dbootstrap=$CC_BOOTSTRAP -Denv=$CC_ENV \
+    && cp -f $SAG_HOME/bootstrap/custom_configs/custom_setenv_cce_runconsole.sh $SAG_HOME/profiles/CCE/bin/custom_setenv.sh \
+    && cd $SAG_HOME \
+    && rm -fr $SAG_HOME/Downloads $SAG_HOME/bootstrap $SAG_HOME/common/conf/nodeId.txt $SAG_HOME/profiles/SPM/logs/* $SAG_HOME/profiles/CCE/logs/*
+
+EXPOSE 8090
+EXPOSE 8091
+EXPOSE 8092
+EXPOSE 8093
+
+ENTRYPOINT /bin/bash -c './profiles/SPM/bin/startup.sh && ./profiles/CCE/bin/startup.sh'

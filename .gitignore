@@ -2,6 +2,9 @@
 terracotta-license.key
 *.tar.gz
 
+#ignore all license
+**/licenses/**/*.xml
+
 # Compiled source #
 ###################
 *.jar

@@ -1,0 +1,23 @@
+alias: sag-repos_10.0
+description: Default master repositories registration
+version: 0.1
+changes:
+  - 0.1 Initial draft
+
+environments:
+  default:                      # Input parameters
+    empower.username: ${}       # REQUIRED, username on https://empower.softwareag.com/
+    empower.password: ${}       # REQUIRED, password
+
+repositories:
+  product:
+    webMethods-10.0:
+      location: http://sdc.softwareag.com/dataservewebM100/repository/
+      username: ${empower.username}
+      password: ${empower.password}
+      description: Innovation release
+ 
+  fix:                          # public fix repository for all versions
+    Empower:
+      username: ${empower.username}
+      password: ${empower.password}

@@ -1,0 +1,22 @@
+alias: sag-repos_9.12
+description: Default master repositories registration
+version: 0.1
+changes:
+  - 0.1 Initial draft
+
+environments:
+  default:                      # Input parameters
+    empower.username: ${}       # REQUIRED, username on https://empower.softwareag.com/
+    empower.password: ${}       # REQUIRED, password
+
+repositories:
+  product:
+    webMethods-9.12:
+      location: http://sdc.softwareag.com/dataservewebM912/repository/
+      username: ${empower.username}
+      password: ${empower.password}
+
+  fix:                          # public fix repository for all versions
+    Empower:
+      username: ${empower.username}
+      password: ${empower.password}

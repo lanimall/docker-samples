@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+  cce:
+    image: ${CC_IMAGE_PREFIX}/mycce:${CC_VERSION}
+    build:
+      context: .
+      dockerfile: Dockerfile.cce
+      args:
+        CC_ENV: ${CC_VERSION}
+    ports:
+      - "8090:8090"
+      - "8091:8091"
+      - "8092:8092"
+      - "8093:8093"
+  test:
+    image: ${CC_IMAGE_PREFIX}/cli:${CC_VERSION}
+    environment: 
+      CC_SERVER: cce
+    volumes: 
+      - .:/src
+    command: sagccant waitcc test
+    depends_on: 
+      - cce

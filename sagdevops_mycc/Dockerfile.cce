@@ -1,0 +1,21 @@
+# base Command Central server image
+FROM lanimall/cce:10.0
+
+# These attributes are set by the parent image...probably should not be changed here.
+ARG SAG_HOME=/softwareag
+ARG CC_ENV=default
+
+# add bootstrap project
+COPY . $SAG_HOME/bootstrap
+USER root
+RUN chown -R saguser:saguser $SAG_HOME/bootstrap
+
+USER saguser
+WORKDIR $SAG_HOME
+
+# start tooling, apply template(s), cleanup
+RUN cd $SAG_HOME/bootstrap \
+    && ant startcc setup stopcc \
+    -Dinstall.dir=$SAG_HOME -Dinstaller.dir=$SAG_HOME/Downloads -Dcc.cli.home=$SAG_HOME/CommandCentral/client -Denv=$CC_ENV \
+    && cd $SAG_HOME \
+    && rm -fr $SAG_HOME/Downloads $SAG_HOME/bootstrap $SAG_HOME/common/conf/nodeId.txt $SAG_HOME/profiles/SPM/logs/* $SAG_HOME/profiles/CCE/logs/*

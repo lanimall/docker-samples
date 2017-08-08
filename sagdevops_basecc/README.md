@@ -7,17 +7,18 @@ This project creates some custom Docker images for the core Command Central comp
  - Command Central CLI
 
 **Notes:**
- - The image OS is Centos 7
+ - The OS for the images is Centos 7 ("centos:7" from docker-hub)
  - During image creation:
    - The OS is upgraded with latest fixes
    - The SoftwareAG software is pulled from central repository, installed, and all latest fixes applied.
- - The SoftwareAG processes will run as standard Linux user "saguser"
+ - The SoftwareAG processes will run as "saguser" (a non-root standard Linux user)
 
 **My TODOs**
  - Reduce image size
 
 For more open-source resources regarding SofwareAG DEVOPS, go to: [SoftwareAG OSS Repository on GitHub](https://github.com/SoftwareAG)
-The following projects were instrumental in the creation of this sample project:
+
+And specifcaly, the following github projects were instrumental in the creation of this sample project:
  - [sagdevops-antcc](https://github.com/SoftwareAG/sagdevops-antcc)
  - [sagdevops-cc-server](https://github.com/SoftwareAG/sagdevops-cc-server)
  - [sagdevops-ci-infra](https://github.com/SoftwareAG/sagdevops-ci-infra)

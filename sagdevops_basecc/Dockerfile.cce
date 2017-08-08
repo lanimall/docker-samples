@@ -35,7 +35,6 @@ RUN cd $SAG_HOME/bootstrap/ \
     && ant boot test stopcc \
     -Dinstall.dir=$SAG_HOME -Dinstaller.dir=$SAG_HOME/Downloads -Dcc.cli.home=$SAG_HOME/CommandCentral/client \
     -Dbootstrap=$CC_BOOTSTRAP -Denv=$CC_ENV \
-    && cp -f $SAG_HOME/bootstrap/custom_configs/custom_setenv_cce_runconsole.sh $SAG_HOME/profiles/CCE/bin/custom_setenv.sh \
     && cd $SAG_HOME \
     && rm -fr $SAG_HOME/Downloads $SAG_HOME/bootstrap $SAG_HOME/common/conf/nodeId.txt $SAG_HOME/profiles/SPM/logs/* $SAG_HOME/profiles/CCE/logs/*
 
@@ -44,4 +43,6 @@ EXPOSE 8091
 EXPOSE 8092
 EXPOSE 8093
 
-ENTRYPOINT /bin/bash -c './profiles/SPM/bin/startup.sh && ./profiles/CCE/bin/startup.sh'
+ENTRYPOINT /bin/bash -c './profiles/SPM/bin/startup.sh && \
+  export USE_WRAPPER=yes;export STARTUP_MODE=console;export BLOCKING_SCRIPT=yes; \
+  ./profiles/CCE/bin/startup.sh'

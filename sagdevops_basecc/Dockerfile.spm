@@ -35,11 +35,11 @@ RUN cd $SAG_HOME/bootstrap/ \
     && ant agent stopcc \
     -Dinstall.dir=$SAG_HOME -Dinstaller.dir=$SAG_HOME/Downloads -Dcc.cli.home=$SAG_HOME/CommandCentral/client \
     -Dbootstrap=$CC_BOOTSTRAP -Denv=$CC_ENV \
-    && cp -f $SAG_HOME/bootstrap/custom_configs/custom_setenv_spm_runconsole.sh $SAG_HOME/profiles/SPM/bin/custom_setenv.sh \
     && cd $SAG_HOME \
     && rm -fr $SAG_HOME/Downloads $SAG_HOME/bootstrap $SAG_HOME/common/conf/nodeId.txt $SAG_HOME/profiles/SPM/logs/*
 
 EXPOSE 8092
 EXPOSE 8093
 
-ENTRYPOINT /bin/bash -c './profiles/SPM/bin/startup.sh'
+ENTRYPOINT /bin/bash -c 'export USE_WRAPPER=yes;export STARTUP_MODE=console;export BLOCKING_SCRIPT=yes; \
+   ./profiles/SPM/bin/startup.sh'

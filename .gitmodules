@@ -1,3 +1,6 @@
 [submodule "sagdevops_basecc/antcc"]
 	path = sagdevops_basecc/antcc
 	url = https://github.com/SoftwareAG/sagdevops-antcc.git
+[submodule "sagdevops_mycc/antcc"]
+	path = sagdevops_mycc/antcc
+	url = https://github.com/SoftwareAG/sagdevops-antcc.git
